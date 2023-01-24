@@ -2,6 +2,11 @@ import pygame
 import sys
 from random import shuffle
 
+DEFAULT_WINDOW_SIZE = (727, 441)
+DEFAULT_IMAGE_SIZE = (226, 280)
+DEFAULT_IMAGE_POSITION = (250,78)
+COLOR_BLACK = (0,0,0)
+
 class Game():  
     ___suits = "CDHS"
     ___ranks = "234567890JQKA"
@@ -17,7 +22,6 @@ class Game():
             for rank in self.___ranks:
                 self.___deck.append(rank + suit)
         shuffle(self.___deck)
-        print(self.___deck)
 
     def get_card(self):
         if len(self.___deck) > 0:
@@ -44,7 +48,6 @@ class Button():
     ___y = 0
     ___fill = 2
     ___selected = False
-
 
     def __init__(self, text, x, y):
         self.___x = x
@@ -76,29 +79,37 @@ class Button():
             return True
         else:
             return False
+
+class Label():
+    ___label = ""
+    ___font = None
+    ___location = None
+
+    def __init__(self, txt, location, font, size):
+        self.___font = font
+        fontesys=pygame.font.SysFont(font, size)
+        self.___label = fontesys.render(txt, 1, (255,255,255))
+        self.___location = location
+
+    def draw_label(self, screen):
+        screen.blit(self.___label, self.___location)
     
 pygame.init()
-
-DEFAULT_WINDOW_SIZE = 727, 441
+pygame.font.init()
 screen = pygame.display.set_mode(DEFAULT_WINDOW_SIZE)
 pygame.display.set_caption('Exercise Python Maicon')
-COLOR_BLACK = 0,0,0
 
 background = Sprite('images/background.png', [0,50], (0,0))
-
-DEFAULT_IMAGE_SIZE = (226, 280)
-DEFAULT_IMAGE_POSITION = (250,78)
 card_image = Sprite('images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
-
-txt='Which color do you think this card is?'
-pygame.font.init()
-fonte=pygame.font.get_default_font()
-fontesys=pygame.font.SysFont(fonte, 35)
-txttela = fontesys.render(txt, 1, (255,255,255))
 
 button_red = Button('Red', 0, 400)
 button_black = Button('Black', 150, 400)
 button_show = Button('Show', 400, 400)
+
+title_lbl = Label('Which color do you think this card is?', (5,10), pygame.font.get_default_font(), 35)
+score_lbl = Label('Score: 0', (640, 65), pygame.font.get_default_font(), 20)
+rate_lbl = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
+deck_lbl = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
 
 game = Game()
 
@@ -125,7 +136,11 @@ while True:
     screen.fill(COLOR_BLACK)
     screen.blit(background.image, background.rect)
     screen.blit(card_image.image, card_image.rect)
-    screen.blit(txttela,(5,10))
+
+    title_lbl.draw_label(screen)
+    score_lbl.draw_label(screen)
+    rate_lbl.draw_label(screen)
+    deck_lbl.draw_label(screen)
 
     button_red.draw_button(screen, mouse)
     button_black.draw_button(screen, mouse)
