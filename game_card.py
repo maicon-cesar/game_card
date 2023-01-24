@@ -30,6 +30,8 @@ class Game():
     def get_card(self):
         if len(self.___deck) > 0:
             return self.___deck.pop(0)
+        else:
+            return None
 
     def get_count_deck(self):
         return len(self.___deck)
@@ -124,6 +126,8 @@ pygame.display.set_caption('Exercise Python Maicon')
 
 background = Sprite('images/background.png', (0,50), (0,0))
 card_image = Sprite('images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
+emoticon_sad   = Sprite('images/sad.png', (640, 5), (35, 35))
+emoticon_happy = Sprite('images/happy.png', (640, 5), (45, 35))
 
 button_red   = Button('Red', 10, 400)
 button_black = Button('Black', 160, 400)
@@ -133,6 +137,7 @@ title_lbl = Label('Which color do you think this card is?', (10,10), pygame.font
 score_lbl = Label('Score: 0', (640, 65), pygame.font.get_default_font(), 20)
 rate_lbl  = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
 deck_lbl  = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
+result_lbl= Label('You got it!', (530, 10), pygame.font.get_default_font(), 30)
 
 while True:
     mouse = pygame.mouse.get_pos()
@@ -145,6 +150,8 @@ while True:
                 if game.get_option() == None:
                     continue
                 card = game.get_card()
+                if card == None:
+                    continue
                 if game.get_option() == game.get_color(card):
                     game.scores()
                 del(card_image)
@@ -163,11 +170,14 @@ while True:
     screen.fill(COLOR_BLACK)
     screen.blit(background.image, background.rect)
     screen.blit(card_image.image, card_image.rect)
+    screen.blit(emoticon_sad.image, emoticon_sad.rect)
+    screen.blit(emoticon_happy.image, emoticon_happy.rect)
 
     title_lbl.draw_label(screen, 'Which color do you think this card is?')
     score_lbl.draw_label(screen, f'Score: {game.get_score()}')
     rate_lbl.draw_label(screen, f'Rate: {game.get_rate()}%')
     deck_lbl.draw_label(screen, f'Deck: {game.get_count_deck()}')
+    result_lbl.draw_label(screen, 'You got it!')
 
     button_red.draw_button(screen, mouse)
     button_black.draw_button(screen, mouse)
