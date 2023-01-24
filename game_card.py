@@ -23,15 +23,35 @@ class Game():
                 self.___deck.append(rank + suit)
         shuffle(self.___deck)
 
+    def set_option(self, option):
+        self.___option = option
+
     def get_card(self):
         if len(self.___deck) > 0:
             return self.___deck.pop(0)
 
+    def get_count_deck(self):
+        return len(self.___deck)
+
+    def get_rate(self):
+        if len(self.___deck) == 52:
+            return 0
+        return int(self.___score*100/(52-len(self.___deck)))
+
+    def get_score(self):
+        return self.___score
+    
+    def get_option(self):
+        return self.___option
+
     def get_color(self, card):
         suit = card[1]
-        if suit == self.___suits[0] or suit == self.___suits[2]:
+        if suit == self.___suits[0] or suit == self.___suits[3]:
             return "black"
         return "red"
+
+    def scores(self):
+        self.___score += 1
 
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, image_file, location, scale):
@@ -82,18 +102,19 @@ class Button():
 
 class Label():
     ___label = ""
-    ___font = None
     ___location = None
+    ___fontsys = None
 
     def __init__(self, txt, location, font, size):
-        self.___font = font
-        fontesys=pygame.font.SysFont(font, size)
-        self.___label = fontesys.render(txt, 1, (255,255,255))
+        self.___fontsys = pygame.font.SysFont(font, size)
         self.___location = location
 
-    def draw_label(self, screen):
+    def draw_label(self, screen, txt):
+        self.___label = self.___fontsys.render(txt, 1, (255,255,255))
         screen.blit(self.___label, self.___location)
     
+game = Game()
+
 pygame.init()
 pygame.font.init()
 screen = pygame.display.set_mode(DEFAULT_WINDOW_SIZE)
@@ -111,8 +132,6 @@ score_lbl = Label('Score: 0', (640, 65), pygame.font.get_default_font(), 20)
 rate_lbl = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
 deck_lbl = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
 
-game = Game()
-
 while True:
     mouse = pygame.mouse.get_pos()
 
@@ -121,15 +140,19 @@ while True:
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             if button_show.click(mouse):
-                card =  game.get_card()
+                card = game.get_card()
+                if game.get_option() == game.get_color(card):
+                    game.scores()
                 del(card_image)
                 card_image = Sprite(f'images/deck/{card}.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
 
             if button_red.click(mouse):
+                game.set_option("red")
                 button_black.set_selected(False)
                 button_red.set_selected(True)
 
             if button_black.click(mouse):
+                game.set_option("black")
                 button_red.set_selected(False)
                 button_black.set_selected(True)
 
@@ -137,10 +160,10 @@ while True:
     screen.blit(background.image, background.rect)
     screen.blit(card_image.image, card_image.rect)
 
-    title_lbl.draw_label(screen)
-    score_lbl.draw_label(screen)
-    rate_lbl.draw_label(screen)
-    deck_lbl.draw_label(screen)
+    title_lbl.draw_label(screen, 'Which color do you think this card is?')
+    score_lbl.draw_label(screen, f'Score: {game.get_score()}')
+    rate_lbl.draw_label(screen, f'Rate: {game.get_rate()}%')
+    deck_lbl.draw_label(screen, f'Deck: {game.get_count_deck()}')
 
     button_red.draw_button(screen, mouse)
     button_black.draw_button(screen, mouse)
