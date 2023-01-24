@@ -115,72 +115,77 @@ class Label():
     def draw_label(self, screen, txt):
         self.___label = self.___fontsys.render(txt, 1, (255,255,255))
         screen.blit(self.___label, self.___location)
-    
-os.system('clear')
-game = Game()
 
-pygame.init()
-pygame.font.init()
-screen = pygame.display.set_mode(DEFAULT_WINDOW_SIZE)
-pygame.display.set_caption('Exercise Python Maicon')
+def main():
+    os.system('clear')
+    game = Game()
 
-background = Sprite('images/background.png', (0,50), (0,0))
-card_image = Sprite('images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
-emoticon_sad   = Sprite('images/sad.png', (640, 5), (35, 35))
-emoticon_happy = Sprite('images/happy.png', (640, 5), (45, 35))
+    pygame.init()
+    pygame.font.init()
+    screen = pygame.display.set_mode(DEFAULT_WINDOW_SIZE)
+    pygame.display.set_caption('Exercise Python Maicon')
 
-button_red   = Button('Red', 10, 400)
-button_black = Button('Black', 160, 400)
-button_play  = Button('Play', 410, 400)
+    background = Sprite('images/background.png', (0,50), (0,0))
+    card_image = Sprite('images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
+    emoticon_sad   = Sprite('images/sad.png', (640, 5), (35, 35))
+    emoticon_happy = Sprite('images/happy.png', (640, 5), (45, 35))
 
-title_lbl = Label('Which color do you think this card is?', (10,10), pygame.font.get_default_font(), 35)
-score_lbl = Label('Score: 0', (640, 65), pygame.font.get_default_font(), 20)
-rate_lbl  = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
-deck_lbl  = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
-result_lbl= Label('You got it!', (530, 10), pygame.font.get_default_font(), 30)
+    button_red   = Button('Red', 10, 400)
+    button_black = Button('Black', 160, 400)
+    button_play  = Button('Play', 410, 400)
 
-while True:
-    mouse = pygame.mouse.get_pos()
+    title_lbl = Label('Which color do you think this card is?', (10,10), pygame.font.get_default_font(), 35)
+    score_lbl = Label('Score: 0', (640, 65), pygame.font.get_default_font(), 20)
+    rate_lbl  = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
+    deck_lbl  = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
+    result_lbl= Label('You got it!', (530, 10), pygame.font.get_default_font(), 30)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
-        
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if button_play.click(mouse):
-                if game.get_option() == None:
-                    continue
-                card = game.get_card()
-                if card == None:
-                    continue
-                if game.get_option() == game.get_color(card):
-                    game.scores()
-                del(card_image)
-                card_image = Sprite(f'images/deck/{card}.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
+    while True:
+        mouse = pygame.mouse.get_pos()
 
-            if button_red.click(mouse):
-                game.set_option("red")
-                button_black.set_selected(False)
-                button_red.set_selected(True)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if button_play.click(mouse):
+                    if game.get_option() == None:
+                        continue
+                    card = game.get_card()
+                    if card == None:
+                        continue
+                    if game.get_option() == game.get_color(card):
+                        game.scores()
+                    del(card_image)
+                    card_image = Sprite(f'images/deck/{card}.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
 
-            if button_black.click(mouse):
-                game.set_option("black")
-                button_red.set_selected(False)
-                button_black.set_selected(True)
+                if button_red.click(mouse):
+                    game.set_option("red")
+                    button_black.set_selected(False)
+                    button_red.set_selected(True)
 
-    screen.fill(COLOR_BLACK)
-    screen.blit(background.image, background.rect)
-    screen.blit(card_image.image, card_image.rect)
-    screen.blit(emoticon_sad.image, emoticon_sad.rect)
-    screen.blit(emoticon_happy.image, emoticon_happy.rect)
+                if button_black.click(mouse):
+                    game.set_option("black")
+                    button_red.set_selected(False)
+                    button_black.set_selected(True)
 
-    title_lbl.draw_label(screen, 'Which color do you think this card is?')
-    score_lbl.draw_label(screen, f'Score: {game.get_score()}')
-    rate_lbl.draw_label(screen, f'Rate: {game.get_rate()}%')
-    deck_lbl.draw_label(screen, f'Deck: {game.get_count_deck()}')
-    result_lbl.draw_label(screen, 'You got it!')
+        screen.fill(COLOR_BLACK)
+        screen.blit(background.image, background.rect)
+        screen.blit(card_image.image, card_image.rect)
+        screen.blit(emoticon_sad.image, emoticon_sad.rect)
+        screen.blit(emoticon_happy.image, emoticon_happy.rect)
 
-    button_red.draw_button(screen, mouse)
-    button_black.draw_button(screen, mouse)
-    button_play.draw_button(screen, mouse)
+        title_lbl.draw_label(screen, 'Which color do you think this card is?')
+        score_lbl.draw_label(screen, f'Score: {game.get_score()}')
+        rate_lbl.draw_label(screen, f'Rate: {game.get_rate()}%')
+        deck_lbl.draw_label(screen, f'Deck: {game.get_count_deck()}')
+        result_lbl.draw_label(screen, 'You got it!')
 
-    pygame.display.flip()
+        button_red.draw_button(screen, mouse)
+        button_black.draw_button(screen, mouse)
+        button_play.draw_button(screen, mouse)
+
+        pygame.display.flip()
+
+
+if __name__ == "__main__":
+    main()
