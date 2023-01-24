@@ -1,4 +1,33 @@
-import sys, pygame
+import pygame
+import sys
+from random import shuffle
+
+class Game():  
+    ___suits = "CDHS"
+    ___ranks = "234567890JQKA"
+    ___deck  = []
+    ___option = ""
+    ___score = 0
+
+    def __init__(self):
+        self.shuffle_deck()
+
+    def shuffle_deck(self):
+        for suit in self.___suits:
+            for rank in self.___ranks:
+                self.___deck.append(rank + suit)
+        shuffle(self.___deck)
+        print(self.___deck)
+
+    def get_card(self):
+        if len(self.___deck) > 0:
+            return self.___deck.pop(0)
+
+    def get_color(self, card):
+        suit = card[1]
+        if suit == self.___suits[0] or suit == self.___suits[2]:
+            return "black"
+        return "red"
 
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, image_file, location, scale):
@@ -26,7 +55,7 @@ class Button():
 
     def set_selected(self, status):
         self.___selected = status
-        if status == True:
+        if self.___selected == True:
             self.___fill = 0
         else:
             self.___fill = 2
@@ -71,6 +100,8 @@ button_red = Button('Red', 0, 400)
 button_black = Button('Black', 150, 400)
 button_show = Button('Show', 400, 400)
 
+game = Game()
+
 while True:
     mouse = pygame.mouse.get_pos()
 
@@ -79,7 +110,9 @@ while True:
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             if button_show.click(mouse):
-                sys.exit()
+                card =  game.get_card()
+                del(card_image)
+                card_image = Sprite(f'images/deck/{card}.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
 
             if button_red.click(mouse):
                 button_black.set_selected(False)
