@@ -10,31 +10,40 @@ class Sprite(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = location
 
 class Button():
-    text = None
-    x = 0
-    y = 0
+    ___text = None
+    ___x = 0
+    ___y = 0
+    ___fill = 2
+    ___selected = False
+
 
     def __init__(self, text, x, y):
-        self.x = x
-        self.y = y
+        self.___x = x
+        self.___y = y
         color = (255,255,255)
-        smallfont = pygame.font.SysFont('Corbel', 35) 
-        self.text = smallfont.render(text, True, color) 
+        smallfont = pygame.font.SysFont('Corbel', 25)
+        self.___text = smallfont.render(text, True, color)
 
+    def set_selected(self, status):
+        self.___selected = status
+        if status == True:
+            self.___fill = 0
+        else:
+            self.___fill = 2
 
     def draw_button(self, screen, mouse):
         color_light = (170,170,170)
         color_dark = (100,100,100)
 
-        if self.x <= mouse[0] <= self.x+140 and self.y <= mouse[1] <= self.y+40:
-            pygame.draw.rect(screen, color_light, [self.x, self.y, 140, 40], 3, 3)
+        if self.___x <= mouse[0] <= self.___x+140 and self.___y <= mouse[1] <= self.___y+40:
+            pygame.draw.rect(screen, color_light, [self.___x, self.___y, 140, 40], self.___fill, 9)
         else: 
-            pygame.draw.rect(screen, color_dark, [self.x, self.y, 140, 40], 3, 3)
+            pygame.draw.rect(screen, color_dark, [self.___x, self.___y, 140, 40], self.___fill, 9)
 
-        screen.blit(self.text, (self.x+50, self.y+9))
+        screen.blit(self.___text, (self.___x+50, self.___y+9))
 
     def click(self, mouse):
-        if self.x <= mouse[0] <= self.x+140 and self.y <= mouse[1] <= self.y+40:
+        if self.___x <= mouse[0] <= self.___x+140 and self.___y <= mouse[1] <= self.___y+40:
             return True
         else:
             return False
@@ -49,28 +58,36 @@ COLOR_BLACK = 0,0,0
 background = Sprite('images/background.png', [0,50], (0,0))
 
 DEFAULT_IMAGE_SIZE = (226, 280)
-DEFAULT_IMAGE_POSITION = (270,78)
+DEFAULT_IMAGE_POSITION = (250,78)
 card_image = Sprite('images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
 
 txt='Which color do you think this card is?'
 pygame.font.init()
 fonte=pygame.font.get_default_font()
-fontesys=pygame.font.SysFont(fonte, 30)
+fontesys=pygame.font.SysFont(fonte, 35)
 txttela = fontesys.render(txt, 1, (255,255,255))
 
-button_red = Button('RED', 0, 400)
-button_black = Button('BLACK', 200, 400)
-button_exit = Button('Exit', 400, 400)
+button_red = Button('Red', 0, 400)
+button_black = Button('Black', 150, 400)
+button_show = Button('Show', 400, 400)
 
 while True:
-    mouse = pygame.mouse.get_pos() 
+    mouse = pygame.mouse.get_pos()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
         
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if button_exit.click(mouse):
+            if button_show.click(mouse):
                 sys.exit()
+
+            if button_red.click(mouse):
+                button_black.set_selected(False)
+                button_red.set_selected(True)
+
+            if button_black.click(mouse):
+                button_red.set_selected(False)
+                button_black.set_selected(True)
 
     screen.fill(COLOR_BLACK)
     screen.blit(background.image, background.rect)
@@ -79,6 +96,6 @@ while True:
 
     button_red.draw_button(screen, mouse)
     button_black.draw_button(screen, mouse)
-    button_exit.draw_button(screen, mouse)
+    button_show.draw_button(screen, mouse)
 
     pygame.display.flip()
