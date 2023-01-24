@@ -1,8 +1,9 @@
 import pygame
 import sys
+import os
 from random import shuffle
 
-DEFAULT_WINDOW_SIZE = (727, 441)
+DEFAULT_WINDOW_SIZE = (727, 451)
 DEFAULT_IMAGE_SIZE = (226, 280)
 DEFAULT_IMAGE_POSITION = (250,78)
 COLOR_BLACK = (0,0,0)
@@ -11,7 +12,7 @@ class Game():
     ___suits = "CDHS"
     ___ranks = "234567890JQKA"
     ___deck  = []
-    ___option = ""
+    ___option = None
     ___score = 0
 
     def __init__(self):
@@ -113,6 +114,7 @@ class Label():
         self.___label = self.___fontsys.render(txt, 1, (255,255,255))
         screen.blit(self.___label, self.___location)
     
+os.system('clear')
 game = Game()
 
 pygame.init()
@@ -120,17 +122,17 @@ pygame.font.init()
 screen = pygame.display.set_mode(DEFAULT_WINDOW_SIZE)
 pygame.display.set_caption('Exercise Python Maicon')
 
-background = Sprite('images/background.png', [0,50], (0,0))
+background = Sprite('images/background.png', (0,50), (0,0))
 card_image = Sprite('images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
 
-button_red = Button('Red', 0, 400)
-button_black = Button('Black', 150, 400)
-button_show = Button('Show', 400, 400)
+button_red   = Button('Red', 10, 400)
+button_black = Button('Black', 160, 400)
+button_play  = Button('Play', 410, 400)
 
-title_lbl = Label('Which color do you think this card is?', (5,10), pygame.font.get_default_font(), 35)
+title_lbl = Label('Which color do you think this card is?', (10,10), pygame.font.get_default_font(), 35)
 score_lbl = Label('Score: 0', (640, 65), pygame.font.get_default_font(), 20)
-rate_lbl = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
-deck_lbl = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
+rate_lbl  = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
+deck_lbl  = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
 
 while True:
     mouse = pygame.mouse.get_pos()
@@ -139,7 +141,9 @@ while True:
         if event.type == pygame.QUIT: sys.exit()
         
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if button_show.click(mouse):
+            if button_play.click(mouse):
+                if game.get_option() == None:
+                    continue
                 card = game.get_card()
                 if game.get_option() == game.get_color(card):
                     game.scores()
@@ -167,6 +171,6 @@ while True:
 
     button_red.draw_button(screen, mouse)
     button_black.draw_button(screen, mouse)
-    button_show.draw_button(screen, mouse)
+    button_play.draw_button(screen, mouse)
 
     pygame.display.flip()
