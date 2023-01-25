@@ -5,8 +5,8 @@ Maicon Cesar Canales de Oliveira
 """
 
 import pygame
-import sys
-import os
+from sys import exit
+from os import system, name
 from random import shuffle
 
 DEFAULT_WINDOW_SIZE    = (727, 451)
@@ -146,7 +146,11 @@ class Label():
         screen.blit(self.___label, self.___location)
 
 def main():
-    os.system('clear')
+    if name == 'posix':
+        system('clear')
+    else:
+        system('cls')
+
     game = Game()
 
     pygame.init()
@@ -174,7 +178,7 @@ def main():
         mouse = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+            if event.type == pygame.QUIT: exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button_play.click(mouse):
