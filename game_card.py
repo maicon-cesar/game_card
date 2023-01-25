@@ -20,14 +20,15 @@ COLOR_WHITE            = (255,255,255)
 STATE_PLAY             = 0
 STATE_RESULT_WON       = 1
 STATE_RESULT_MISS      = 2
+STATE_GAMEOVER         = 3
 
-class Game():  
+class Game():
     ___suits = "CDHS"
     ___ranks = "234567890JQKA"
     ___deck  = []
     ___option = None
     ___score = 0
-    ___status = None    
+    ___status = None
 
     def __init__(self):
         self.___status = STATE_PLAY
@@ -58,7 +59,7 @@ class Game():
 
     def get_score(self):
         return self.___score
-    
+
     def get_option(self):
         return self.___option
 
@@ -77,7 +78,6 @@ class Game():
     def get_status(self):
         return self.___status
 
-
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, image_file, location, scale):
         pygame.sprite.Sprite.__init__(self)
@@ -89,8 +89,6 @@ class Sprite(pygame.sprite.Sprite):
 
 class Button():
     ___font = None
-    ___text = None
-    ___text_color = []
     ___label = ""
     ___x = 0
     ___y = 0
@@ -101,8 +99,7 @@ class Button():
         self.___x = x
         self.___y = y
         self.___font = pygame.font.SysFont('Corbel', 25)
-        self.___text_color = COLOR_WHITE
-        self.set_text(label)
+        self.set_label(label)
 
     def set_selected(self, status):
         self.___selected = status
@@ -112,11 +109,10 @@ class Button():
             self.___fill = 2
 
     def get_selected(self):
-        return self.___selected            
+        return self.___selected
 
-    def set_text(self, label):
+    def set_label(self, label):
         self.___label = label
-        self.___text = self.___font.render(label, True, self.___text_color)
 
     def draw_button(self, screen, mouse, text_color):
         color_light = (170,170,170)
@@ -124,11 +120,11 @@ class Button():
 
         if self.___x <= mouse[0] <= self.___x+140 and self.___y <= mouse[1] <= self.___y+40:
             pygame.draw.rect(screen, color_light, [self.___x, self.___y, 140, 40], self.___fill, 9)
-        else: 
+        else:
             pygame.draw.rect(screen, color_dark, [self.___x, self.___y, 140, 40], self.___fill, 9)
 
-        self.___text = self.___font.render(self.___label, True, text_color)
-        screen.blit(self.___text, (self.___x+50, self.___y+9))
+        text = self.___font.render(self.___label, True, text_color)
+        screen.blit(text, (self.___x+50, self.___y+9))
 
     def click(self, mouse):
         if self.___x <= mouse[0] <= self.___x+140 and self.___y <= mouse[1] <= self.___y+40:
@@ -172,39 +168,53 @@ def main():
     rate_lbl  = Label('Rate: 0%', (640, 85), pygame.font.get_default_font(), 20)
     deck_lbl  = Label('Deck: 52', (640, 105), pygame.font.get_default_font(), 20)
     result_lbl= Label('You got it!', (530, 10), pygame.font.get_default_font(), 30)
+    final_lbl = Label('Thank you very much for playing!', (170, 200), pygame.font.get_default_font(), 35)
 
     while True:
         mouse = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
-            
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button_play.click(mouse):
-                    if game.get_option() == None:
+                    if game.get_option() == None and game.get_status() != STATE_GAMEOVER:
                         continue
-                    if game.get_status() != STATE_PLAY:
+
+                    if game.get_status() != STATE_PLAY and game.get_status() != STATE_GAMEOVER:
                         del(card_image)
                         card_image = Sprite(f'images/deck/back.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
-                        button_play.set_text('Play')
-                        game.set_status(STATE_PLAY)
+                        button_play.set_label('Play')
+                        if game.get_count_deck() == 0:
+                            button_play.set_label('Again')
+                            game.set_status(STATE_GAMEOVER)
+                        else:
+                            game.set_status(STATE_PLAY)
                         button_red.set_selected(False)
                         button_black.set_selected(False)
-                        game.set_option(None) 
+                        game.set_option(None)
                         continue
-                    else:
-                        button_play.set_text('Next')
-                    card = game.get_card()
-                    if card == None:
+
+                    if game.get_status() == STATE_GAMEOVER:
+                        del(game)
+                        game = Game()
+                        button_play.set_label('Play')
+                        game.set_status(STATE_PLAY)
                         continue
-                    if game.get_option() == game.get_color(card):
-                        game.scores()
-                        game.set_status(STATE_RESULT_WON)
-                    else:
-                        game.set_status(STATE_RESULT_MISS)
-                    del(card_image)
-                    card_image = Sprite(f'images/deck/{card}.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
-                if game.get_status() == STATE_PLAY:    
+
+                    if game.get_status() == STATE_PLAY:
+                        card = game.get_card()
+                        button_play.set_label('Next')
+
+                        if game.get_option() == game.get_color(card):
+                            game.scores()
+                            game.set_status(STATE_RESULT_WON)
+                        else:
+                            game.set_status(STATE_RESULT_MISS)
+                        del(card_image)
+                        card_image = Sprite(f'images/deck/{card}.png', DEFAULT_IMAGE_POSITION, DEFAULT_IMAGE_SIZE)
+
+                if game.get_status() == STATE_PLAY:
                     if button_red.click(mouse):
                         game.set_option("red")
                         button_black.set_selected(False)
@@ -217,7 +227,9 @@ def main():
 
         screen.fill(COLOR_BLACK)
         screen.blit(background.image, background.rect)
-        screen.blit(card_image.image, card_image.rect)
+
+        if game.get_status() != STATE_GAMEOVER:
+            screen.blit(card_image.image, card_image.rect)
 
         title_lbl.draw_label(screen, 'Which color do you think this card is?')
         score_lbl.draw_label(screen, f'Score: {game.get_score()}')
@@ -229,9 +241,11 @@ def main():
         elif game.get_status() == STATE_RESULT_WON:
             result_lbl.draw_label(screen, 'You got it!')
             screen.blit(emoticon_happy.image, emoticon_happy.rect)
-        else:
+        elif game.get_status() == STATE_RESULT_MISS:
             result_lbl.draw_label(screen, 'You missed!')
             screen.blit(emoticon_sad.image, emoticon_sad.rect)
+        elif game.get_status() == STATE_GAMEOVER:
+            final_lbl.draw_label(screen, 'Thank you very much for playing!')
 
         if button_red.get_selected():
             button_red.draw_button(screen, mouse, COLOR_RED)
